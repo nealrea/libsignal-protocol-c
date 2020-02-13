@@ -80,9 +80,8 @@ message SignedPreKeyRecordStructure {
     optional bytes   signature  = 4;
     optional fixed64 timestamp  = 5;
     optional bytes   rhat       = 6;
-    optional bytes   R_hat      = 7;
-    optional bytes   shat       = 8;
-    optional bytes   chat       = 9;
+    optional bytes   shat       = 7;
+    optional bytes   chat       = 8;
 }
 
 message IdentityKeyPairStructure {

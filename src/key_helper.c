@@ -216,7 +216,6 @@ int signal_protocol_key_helper_generate_signed_pre_key(session_signed_pre_key **
     signal_buffer *public_buf = 0;
     signal_buffer *signature_buf = 0;
     signal_buffer *rhat_buf = 0;
-    signal_buffer *Rhat_buf = 0;
     signal_buffer *shat_buf = 0;
     signal_buffer *chat_buf = 0;
     ec_public_key *public_key = 0;
@@ -253,11 +252,6 @@ int signal_protocol_key_helper_generate_signed_pre_key(session_signed_pre_key **
         goto complete;
     }
     rhat_buf = signal_buffer_create(get_private_data(rhat), DJB_KEY_LEN);
-
-    // this will be later removed
-    uint8_t arr[32];
-    memset(arr, 0, 32);
-    Rhat_buf = signal_buffer_create(arr, 32);
 
     // generate hash value for chat
     void *hmac_context = 0;
@@ -300,7 +294,6 @@ int signal_protocol_key_helper_generate_signed_pre_key(session_signed_pre_key **
             signal_buffer_data(signature_buf),
             signal_buffer_len(signature_buf),
             signal_buffer_data(rhat_buf),
-            signal_buffer_data(Rhat_buf),
             signal_buffer_data(shat_buf),
             signal_buffer_data(chat_buf));
 

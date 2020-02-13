@@ -239,11 +239,9 @@ START_TEST(test_basic_pre_key_v3)
 
     session_signed_pre_key *bob_signed_pre_key_record = 0;
     signal_buffer *bob_signed_pre_key_rhat = 0;
-    signal_buffer *bob_signed_pre_key_Rhat = 0;
     signal_buffer *bob_signed_pre_key_shat = 0;
     signal_buffer *bob_signed_pre_key_chat = 0;
     bob_signed_pre_key_rhat = signal_buffer_alloc(32);
-    bob_signed_pre_key_Rhat = signal_buffer_alloc(32);
     bob_signed_pre_key_shat = signal_buffer_alloc(32);
     bob_signed_pre_key_chat = signal_buffer_alloc(32);
     result = session_signed_pre_key_create(&bob_signed_pre_key_record,
@@ -252,7 +250,6 @@ START_TEST(test_basic_pre_key_v3)
             signal_buffer_data(bob_signed_pre_key_signature),
             signal_buffer_len(bob_signed_pre_key_signature),
             signal_buffer_data(bob_signed_pre_key_rhat),
-            signal_buffer_data(bob_signed_pre_key_Rhat),
             signal_buffer_data(bob_signed_pre_key_shat),
             signal_buffer_data(bob_signed_pre_key_chat));
     ck_assert_int_eq(result, 0);
@@ -403,7 +400,6 @@ START_TEST(test_basic_pre_key_v3)
             signal_buffer_data(bob_signed_pre_key_signature),
             signal_buffer_len(bob_signed_pre_key_signature),
             signal_buffer_data(bob_signed_pre_key_rhat),
-            signal_buffer_data(bob_signed_pre_key_Rhat),
             signal_buffer_data(bob_signed_pre_key_shat),
             signal_buffer_data(bob_signed_pre_key_chat));
     ck_assert_int_eq(result, 0);
@@ -700,11 +696,9 @@ START_TEST(test_repeat_bundle_message_v2)
 
     session_signed_pre_key *bob_signed_pre_key_record = 0;
     signal_buffer *bob_signed_pre_key_rhat = 0;
-    signal_buffer *bob_signed_pre_key_Rhat = 0;
     signal_buffer *bob_signed_pre_key_shat = 0;
     signal_buffer *bob_signed_pre_key_chat = 0;
     bob_signed_pre_key_rhat = signal_buffer_alloc(32);
-    bob_signed_pre_key_Rhat = signal_buffer_alloc(32);
     bob_signed_pre_key_shat = signal_buffer_alloc(32);
     bob_signed_pre_key_chat = signal_buffer_alloc(32);
     result = session_signed_pre_key_create(&bob_signed_pre_key_record,
@@ -713,7 +707,6 @@ START_TEST(test_repeat_bundle_message_v2)
             signal_buffer_data(bob_signed_pre_key_signature),
             signal_buffer_len(bob_signed_pre_key_signature),
             signal_buffer_data(bob_signed_pre_key_rhat),
-            signal_buffer_data(bob_signed_pre_key_Rhat),
             signal_buffer_data(bob_signed_pre_key_shat),
             signal_buffer_data(bob_signed_pre_key_chat));
     ck_assert_int_eq(result, 0);
@@ -812,11 +805,9 @@ START_TEST(test_repeat_bundle_message_v3)
 
     session_signed_pre_key *bob_signed_pre_key_record = 0;
     signal_buffer *bob_signed_pre_key_rhat = 0;
-    signal_buffer *bob_signed_pre_key_Rhat = 0;
     signal_buffer *bob_signed_pre_key_shat = 0;
     signal_buffer *bob_signed_pre_key_chat = 0;
     bob_signed_pre_key_rhat = signal_buffer_alloc(32);
-    bob_signed_pre_key_Rhat = signal_buffer_alloc(32);
     bob_signed_pre_key_shat = signal_buffer_alloc(32);
     bob_signed_pre_key_chat = signal_buffer_alloc(32);
     result = session_signed_pre_key_create(&bob_signed_pre_key_record,
@@ -825,7 +816,6 @@ START_TEST(test_repeat_bundle_message_v3)
             signal_buffer_data(bob_signed_pre_key_signature),
             signal_buffer_len(bob_signed_pre_key_signature),
             signal_buffer_data(bob_signed_pre_key_rhat),
-            signal_buffer_data(bob_signed_pre_key_Rhat),
             signal_buffer_data(bob_signed_pre_key_shat),
             signal_buffer_data(bob_signed_pre_key_chat));
     ck_assert_int_eq(result, 0);
@@ -1029,11 +1019,9 @@ START_TEST(test_bad_message_bundle)
 
     session_signed_pre_key *bob_signed_pre_key_record = 0;
     signal_buffer *bob_signed_pre_key_rhat = 0;
-    signal_buffer *bob_signed_pre_key_Rhat = 0;
     signal_buffer *bob_signed_pre_key_shat = 0;
     signal_buffer *bob_signed_pre_key_chat = 0;
     bob_signed_pre_key_rhat = signal_buffer_alloc(32);
-    bob_signed_pre_key_Rhat = signal_buffer_alloc(32);
     bob_signed_pre_key_shat = signal_buffer_alloc(32);
     bob_signed_pre_key_chat = signal_buffer_alloc(32);
     result = session_signed_pre_key_create(&bob_signed_pre_key_record,
@@ -1042,7 +1030,6 @@ START_TEST(test_bad_message_bundle)
             signal_buffer_data(bob_signed_pre_key_signature),
             signal_buffer_len(bob_signed_pre_key_signature),
             signal_buffer_data(bob_signed_pre_key_rhat),
-            signal_buffer_data(bob_signed_pre_key_Rhat),
             signal_buffer_data(bob_signed_pre_key_shat),
             signal_buffer_data(bob_signed_pre_key_chat));
     ck_assert_int_eq(result, 0);
@@ -1244,11 +1231,9 @@ START_TEST(test_optional_one_time_pre_key)
 
     session_signed_pre_key *bob_signed_pre_key_record = 0;
     signal_buffer *bob_signed_pre_key_rhat = 0;
-    signal_buffer *bob_signed_pre_key_Rhat = 0;
     signal_buffer *bob_signed_pre_key_shat = 0;
     signal_buffer *bob_signed_pre_key_chat = 0;
     bob_signed_pre_key_rhat = signal_buffer_alloc(32);
-    bob_signed_pre_key_Rhat = signal_buffer_alloc(32);
     bob_signed_pre_key_shat = signal_buffer_alloc(32);
     bob_signed_pre_key_chat = signal_buffer_alloc(32);
     result = session_signed_pre_key_create(&bob_signed_pre_key_record,
@@ -1257,7 +1242,6 @@ START_TEST(test_optional_one_time_pre_key)
             signal_buffer_data(bob_signed_pre_key_signature),
             signal_buffer_len(bob_signed_pre_key_signature),
             signal_buffer_data(bob_signed_pre_key_rhat),
-            signal_buffer_data(bob_signed_pre_key_Rhat),
             signal_buffer_data(bob_signed_pre_key_shat),
             signal_buffer_data(bob_signed_pre_key_chat));
     ck_assert_int_eq(result, 0);
