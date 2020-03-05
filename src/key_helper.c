@@ -10,6 +10,7 @@
 #include "sc.h"
 #include <string.h> 
 #include "ge.h"
+#include <openssl/hmac.h>
 #define DJB_KEY_LEN 32
 
 struct signal_protocol_key_helper_pre_key_list_node
@@ -215,36 +216,101 @@ int signal_protocol_key_helper_generate_rhat(signal_context *global_context, sig
     return result;
 }
 
+// Not sure if any other test needs the signal_hmac_sha256_init version from test_common_crypto 
+// But we need the one from test_common_openssl
+int hmac_sha256_init(void **hmac_context, const uint8_t *key, size_t key_len) {
+#if OPENSSL_VERSION_NUMBER >= 0x1010000fL
+    HMAC_CTX *ctx = HMAC_CTX_new();
+    if(!ctx) {
+        return SG_ERR_NOMEM;
+    }
+#else
+    HMAC_CTX *ctx = malloc(sizeof(HMAC_CTX));
+    if(!ctx) {
+        return SG_ERR_NOMEM;
+    }
+    HMAC_CTX_init(ctx);
+#endif
+
+    *hmac_context = ctx;
+
+    if(HMAC_Init_ex(ctx, key, key_len, EVP_sha256(), 0) != 1) {
+        return SG_ERR_UNKNOWN;
+    }
+
+    return 0;
+}
+
+int hmac_sha256_update(void *hmac_context, const uint8_t *data, size_t data_len) {
+    HMAC_CTX *ctx = hmac_context;
+    int result = HMAC_Update(ctx, data, data_len);
+    return (result == 1) ? 0 : -1;
+}
+
+int hmac_sha256_final(void *hmac_context, signal_buffer **output) {
+    int result = 0;
+    unsigned char md[EVP_MAX_MD_SIZE];
+    unsigned int len = 0;
+    HMAC_CTX *ctx = hmac_context;
+
+    if(HMAC_Final(ctx, md, &len) != 1) {
+        return SG_ERR_UNKNOWN;
+    }
+
+    signal_buffer *output_buffer = signal_buffer_create(md, len);
+    if(!output_buffer) {
+        result = SG_ERR_NOMEM;
+        goto complete;
+    }
+
+    *output = output_buffer;
+
+complete:
+    return result;
+}
+
+int hmac_sha256_cleanup(void *hmac_context) {
+    if(hmac_context) {
+        HMAC_CTX *ctx = hmac_context;
+#if OPENSSL_VERSION_NUMBER >= 0x1010000fL
+        HMAC_CTX_free(ctx);
+#else
+        HMAC_CTX_cleanup(ctx);
+        free(ctx);
+#endif
+    }
+}
+
 int signal_protocol_key_helper_generate_chat(signal_context *global_context, const ratchet_identity_key_pair *identity_key_pair, ec_public_key *public_key, signal_buffer **chat_buf) {
     void *hmac_context = 0;
     uint8_t csalt[DJB_KEY_LEN];
     memset(csalt, 0, sizeof(csalt));
     int result;
     // initialize HMAC_CTX
-    result = signal_hmac_sha256_init(global_context, &hmac_context, csalt, DJB_KEY_LEN);
+    result = hmac_sha256_init(&hmac_context, csalt, DJB_KEY_LEN);
     if (result < 0) {
         goto complete;
     }
 
     // digest input message stream B
-    result = signal_hmac_sha256_update(global_context, hmac_context, get_public_data(ratchet_identity_key_pair_get_public(identity_key_pair)), DJB_KEY_LEN);
+    result = hmac_sha256_update(hmac_context, get_public_data(ratchet_identity_key_pair_get_public(identity_key_pair)), DJB_KEY_LEN);
     if (result < 0) {
         goto complete;
     }
 
     // digest input message stream Y
-    result = signal_hmac_sha256_update(global_context, hmac_context, get_public_data(public_key), DJB_KEY_LEN);
+    result = hmac_sha256_update(hmac_context, get_public_data(public_key), DJB_KEY_LEN);
     if (result < 0) {
         goto complete;
     }
 
     // place authentication code in chat_buf
-    result = signal_hmac_sha256_final(global_context, hmac_context, chat_buf);
+    result = hmac_sha256_final(hmac_context, chat_buf);
     if (result < 0) {
         goto complete;
     }
     
-    signal_hmac_sha256_cleanup(global_context, hmac_context);
+    hmac_sha256_cleanup(hmac_context);
 
  complete:
     return result;
