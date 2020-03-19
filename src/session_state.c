@@ -78,6 +78,12 @@ struct session_state
     int needs_refresh;
     ec_public_key *alice_base_key;
 
+    //Schnorr Values
+    signal_buffer *alice_s_buf;
+    signal_buffer *alice_c_buf;
+    signal_buffer *alice_Xfull_buf;
+    signal_buffer *alice_Rfull_buf;
+
     signal_context *global_context;
 };
 
@@ -366,6 +372,42 @@ int session_state_serialize_prepare(session_state *state, Textsecure__SessionStr
             goto complete;
         }
         session_structure->has_alicebasekey = 1;
+    }
+
+    if(state->alice_s_buf) {
+        result = alice_s_buf_serialize_protobuf(
+                &session_structure->alicesbuf, state->alice_s_buf);
+        if(result < 0) {
+            goto complete;
+        }
+        session_structure->has_alicesbuf = 1;
+    }
+
+    if(state->alice_c_buf) {
+        result = alice_c_buf_serialize_protobuf(
+                &session_structure->alicecbuf, state->alice_c_buf);
+        if(result < 0) {
+            goto complete;
+        }
+        session_structure->has_alicecbuf = 1;
+    }
+
+    if(state->alice_Xfull_buf) {
+        result = alice_Xfull_buf_serialize_protobuf(
+                &session_structure->alicexfullbuf, state->alice_Xfull_buf);
+        if(result < 0) {
+            goto complete;
+        }
+        session_structure->has_alicexfullbuf = 1;
+    }
+
+    if(state->alice_Rfull_buf) {
+        result = alice_Rfull_buf_serialize_protobuf(
+                &session_structure->alicerfullbuf, state->alice_Rfull_buf);
+        if(result < 0) {
+            goto complete;
+        }
+        session_structure->has_alicerfullbuf = 1;
     }
 
 complete:
@@ -705,6 +747,22 @@ void session_state_serialize_prepare_free(Textsecure__SessionStructure *session_
         free(session_structure->alicebasekey.data);
     }
 
+    if(session_structure->has_alicesbuf) {
+        free(session_structure->alicesbuf.data);
+    }
+
+    if(session_structure->has_alicecbuf) {
+        free(session_structure->alicecbuf.data);
+    }
+
+    if(session_structure->has_alicexfullbuf) {
+        free(session_structure->alicexfullbuf.data);
+    }
+
+    if(session_structure->has_alicerfullbuf) {
+        free(session_structure->alicerfullbuf.data);
+    }
+
     free(session_structure);
 }
 
@@ -898,6 +956,42 @@ int session_state_deserialize_protobuf(session_state **state, Textsecure__Sessio
                 session_structure->alicebasekey.data,
                 session_structure->alicebasekey.len,
                 global_context);
+        if(result < 0) {
+            goto complete;
+        }
+    }
+
+    if(session_structure->has_alicesbuf) {
+        result = alice_s_buf_deserialize_protobuf(
+                &result_state->alice_s_buf,
+                session_structure->alicesbuf.data);
+        if(result < 0) {
+            goto complete;
+        }
+    }
+
+    if(session_structure->has_alicecbuf) {
+        result = alice_c_buf_deserialize_protobuf(
+                &result_state->alice_c_buf,
+                session_structure->alicecbuf.data);
+        if(result < 0) {
+            goto complete;
+        }
+    }
+
+    if(session_structure->has_alicexfullbuf) {
+        result = alice_Xfull_buf_deserialize_protobuf(
+                &result_state->alice_Xfull_buf,
+                session_structure->alicexfullbuf.data);
+        if(result < 0) {
+            goto complete;
+        }
+    }
+
+    if(session_structure->has_alicerfullbuf) {
+        result = alice_Rfull_buf_deserialize_protobuf(
+                &result_state->alice_Rfull_buf,
+                session_structure->alicerfullbuf.data);
         if(result < 0) {
             goto complete;
         }
@@ -1764,6 +1858,74 @@ void session_state_set_alice_base_key(session_state *state, ec_public_key *key)
     }
     SIGNAL_REF(key);
     state->alice_base_key = key;
+}
+
+void session_state_set_alice_s(session_state *state, signal_buffer *s_buf)
+{
+    assert(state);
+    assert(s_buf);
+
+    if(state->alice_s_buf) {
+        SIGNAL_UNREF(state->alice_s_buf);
+    }
+    //SIGNAL_REF(s_buf);
+    state->alice_s_buf = s_buf;
+}
+
+signal_buffer *session_state_get_alice_s(session_state *state)
+{
+    return state->alice_s_buf;
+}
+
+void session_state_set_alice_c(session_state *state, signal_buffer *c_buf)
+{
+    assert(state);
+    assert(c_buf);
+
+    if(state->alice_c_buf) {
+        SIGNAL_UNREF(state->alice_c_buf);
+    }
+    //SIGNAL_REF(c_buf);
+    state->alice_c_buf = c_buf;
+}
+
+signal_buffer *session_state_get_alice_c(session_state *state)
+{
+    return state->alice_c_buf;
+}
+
+void session_state_set_alice_Xfull(session_state *state, signal_buffer *Xfull_buf)
+{
+    assert(state);
+    assert(Xfull_buf);
+
+    if(state->alice_Xfull_buf) {
+        SIGNAL_UNREF(state->alice_Xfull_buf);
+    }
+    //SIGNAL_REF(Xfull_buf);
+    state->alice_Xfull_buf = Xfull_buf;
+}
+
+signal_buffer *session_state_get_alice_Xfull(session_state *state)
+{
+    return state->alice_Xfull_buf;
+}
+
+void session_state_set_alice_Rfull(session_state *state, signal_buffer *Rfull_buf)
+{
+    assert(state);
+    assert(Rfull_buf);
+
+    if(state->alice_Rfull_buf) {
+        SIGNAL_UNREF(state->alice_Rfull_buf);
+    }
+    //SIGNAL_REF(Rfull_buf);
+    state->alice_Rfull_buf = Rfull_buf;
+}
+
+signal_buffer *session_state_get_alice_Rfull(session_state *state)
+{
+    return state->alice_Rfull_buf;
 }
 
 ec_public_key *session_state_get_alice_base_key(const session_state *state)
