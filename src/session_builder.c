@@ -15,7 +15,6 @@
 #include "ge.h"
 #include "generalized/gen_crypto_additions.h"
 #include "crypto_additions.h"
-#include "../tests/test_common.h"
 
 #define DJB_KEY_LEN 32
 
@@ -24,16 +23,6 @@ struct session_builder
     signal_protocol_store_context *store;
     const signal_protocol_address *remote_address;
     signal_context *global_context;
-};
-
-signal_protocol_store_context *session_builder_get_store(session_builder *session_builder)
-{
-    return session_builder->store;
-};
-
-const signal_protocol_address *session_builder_get_remote_address(session_builder *session_builder)
-{
-    return session_builder->remote_address;
 };
 
 static int session_builder_process_pre_key_signal_message_v3(session_builder *builder,
@@ -471,16 +460,7 @@ int session_builder_process_pre_key_bundle(session_builder *builder, session_pre
     session_state_set_alice_s(state, s_buf);
     session_state_set_alice_c(state, c_buf);
     session_state_set_alice_Xfull(state, Xfull_buf);
-    session_state_set_alice_Rfull(state, Rfull_buf);
-
-    printf("stored s_buf.....\n");
-    print(session_state_get_alice_s(state), session_state_get_alice_s(state)->len);
-    printf("stored c_buf.....\n");
-    print(session_state_get_alice_c(state), session_state_get_alice_c(state)->len);
-    printf("stored Xfull_buf.....\n");
-    print(session_state_get_alice_Xfull(state), session_state_get_alice_Xfull(state)->len);
-    printf("stored Rfull_buf.....\n");
-    print(session_state_get_alice_Rfull(state), session_state_get_alice_Rfull(state)->len);
+    session_state_set_alice_Rfull(state, Rfull_buf); 
 
     result = signal_protocol_session_store_session(builder->store, builder->remote_address, record);
     if(result < 0) {
