@@ -9,7 +9,6 @@
 /* Test utility functions */
 void print_public_key(const char *prefix, ec_public_key *key);
 void print_buffer(const char *prefix, signal_buffer *buffer);
-void print(signal_buffer *buffer, size_t len);
 void shuffle_buffers(signal_buffer **array, size_t n);
 void shuffle_ec_public_keys(ec_public_key **array, size_t n);
 ec_public_key *create_test_ec_public_key(signal_context *context);
