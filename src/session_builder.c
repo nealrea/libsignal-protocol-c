@@ -10,7 +10,6 @@
 #include "protocol.h"
 #include "key_helper.h"
 #include "signal_protocol_internal.h"
-#include "signal_protocol_types.h"
 #include "sc.h"
 #include "ge.h"
 #include "generalized/gen_crypto_additions.h"
