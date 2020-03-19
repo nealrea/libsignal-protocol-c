@@ -15,6 +15,7 @@
 #define DJB_TYPE 0x05
 #define DJB_KEY_LEN 32
 #define VRF_VERIFY_LEN 32
+#define FULL_GROUP_ELEMENT_LEN 128
 
 struct ec_public_key
 {
@@ -174,11 +175,11 @@ int alice_s_buf_serialize_protobuf(ProtobufCBinaryData *buffer, const signal_buf
     return 0;
 }
 
-int alice_s_buf_deserialize_protobuf(signal_buffer **s_buf, const uint8_t *s_buf_data, size_t s_buf_len)
+int alice_s_buf_deserialize_protobuf(signal_buffer **s_buf, const uint8_t *s_buf_data)
 {
     signal_buffer *alice_s_buf = 0;
 
-    alice_s_buf = signal_buffer_alloc(s_buf_len);
+    alice_s_buf = signal_buffer_alloc(DJB_KEY_LEN);
 
     if(!alice_s_buf) {
         return SG_ERR_NOMEM;
@@ -214,11 +215,11 @@ int alice_c_buf_serialize_protobuf(ProtobufCBinaryData *buffer, const signal_buf
     return 0;
 }
 
-int alice_c_buf_deserialize_protobuf(signal_buffer **c_buf, const uint8_t *c_buf_data, size_t c_buf_len)
+int alice_c_buf_deserialize_protobuf(signal_buffer **c_buf, const uint8_t *c_buf_data)
 {
     signal_buffer *alice_c_buf = 0;
 
-    alice_c_buf = signal_buffer_alloc(c_buf_len);
+    alice_c_buf = signal_buffer_alloc(DJB_KEY_LEN);
 
     if(!alice_c_buf) {
         return SG_ERR_NOMEM;
@@ -240,13 +241,13 @@ int alice_Xfull_buf_serialize_protobuf(ProtobufCBinaryData *buffer, const signal
     assert(buffer);
     assert(alice_Xfull_buf);
 
-    len = sizeof(uint8_t) * (128);
+    len = sizeof(uint8_t) * (FULL_GROUP_ELEMENT_LEN);
     data = malloc(len);
     if(!data) {
         return SG_ERR_NOMEM;
     }
 
-    memcpy(data, alice_Xfull_buf->data, 128);
+    memcpy(data, alice_Xfull_buf->data, FULL_GROUP_ELEMENT_LEN);
 
     buffer->data = data;
     buffer->len = len;
@@ -254,18 +255,18 @@ int alice_Xfull_buf_serialize_protobuf(ProtobufCBinaryData *buffer, const signal
     return 0;
 }
 
-int alice_Xfull_buf_deserialize_protobuf(signal_buffer **Xfull_buf, const uint8_t *Xfull_buf_data, size_t Xfull_buf_len)
+int alice_Xfull_buf_deserialize_protobuf(signal_buffer **Xfull_buf, const uint8_t *Xfull_buf_data)
 {
     signal_buffer *alice_Xfull_buf = 0;
 
-    alice_Xfull_buf = signal_buffer_alloc(Xfull_buf_len);
+    alice_Xfull_buf = signal_buffer_alloc(FULL_GROUP_ELEMENT_LEN);
 
     if(!alice_Xfull_buf) {
         return SG_ERR_NOMEM;
     }
 
-    memcpy(alice_Xfull_buf->data, Xfull_buf_data, 128);
-    alice_Xfull_buf->len = 128;
+    memcpy(alice_Xfull_buf->data, Xfull_buf_data, FULL_GROUP_ELEMENT_LEN);
+    alice_Xfull_buf->len = FULL_GROUP_ELEMENT_LEN;
 
     *Xfull_buf = alice_Xfull_buf;
 
@@ -280,13 +281,13 @@ int alice_Rfull_buf_serialize_protobuf(ProtobufCBinaryData *buffer, const signal
     assert(buffer);
     assert(alice_Rfull_buf);
 
-    len = sizeof(uint8_t) * (128);
+    len = sizeof(uint8_t) * (FULL_GROUP_ELEMENT_LEN);
     data = malloc(len);
     if(!data) {
         return SG_ERR_NOMEM;
     }
 
-    memcpy(data, alice_Rfull_buf->data, 128);
+    memcpy(data, alice_Rfull_buf->data, FULL_GROUP_ELEMENT_LEN);
 
     buffer->data = data;
     buffer->len = len;
@@ -294,18 +295,18 @@ int alice_Rfull_buf_serialize_protobuf(ProtobufCBinaryData *buffer, const signal
     return 0;
 }
 
-int alice_Rfull_buf_deserialize_protobuf(signal_buffer **Rfull_buf, const uint8_t *Rfull_buf_data, size_t Rfull_buf_len)
+int alice_Rfull_buf_deserialize_protobuf(signal_buffer **Rfull_buf, const uint8_t *Rfull_buf_data)
 {
     signal_buffer *alice_Rfull_buf = 0;
 
-    alice_Rfull_buf = signal_buffer_alloc(Rfull_buf_len);
+    alice_Rfull_buf = signal_buffer_alloc(FULL_GROUP_ELEMENT_LEN);
 
     if(!alice_Rfull_buf) {
         return SG_ERR_NOMEM;
     }
 
-    memcpy(alice_Rfull_buf->data, Rfull_buf_data, 128);
-    alice_Rfull_buf->len = 128;
+    memcpy(alice_Rfull_buf->data, Rfull_buf_data, FULL_GROUP_ELEMENT_LEN);
+    alice_Rfull_buf->len = FULL_GROUP_ELEMENT_LEN;
 
     *Rfull_buf = alice_Rfull_buf;
 
