@@ -147,7 +147,7 @@ START_TEST(test_schnorr_verification)
     ck_assert_int_eq(result, 0);
      
     /* Bob loads session state, including Alice's Schnorr proof */
-    result = signal_protocol_session_load_session(session_builder_get_store(alice_session_builder), &bob_record, session_builder_get_remote_address(alice_session_builder));
+    result = signal_protocol_session_load_session(alice_store, &bob_record, &bob_address);
     state = session_record_get_state(bob_record);
 
     printf("loaded s_buf.....\n");
