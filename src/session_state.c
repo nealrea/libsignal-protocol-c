@@ -751,6 +751,18 @@ void session_state_serialize_prepare_free(Textsecure__SessionStructure *session_
         free(session_structure->alicesbuf.data);
     }
 
+    if(session_structure->has_alicecbuf) {
+        free(session_structure->alicecbuf.data);
+    }
+
+    if(session_structure->has_alicexfullbuf) {
+        free(session_structure->alicexfullbuf.data);
+    }
+
+    if(session_structure->has_alicerfullbuf) {
+        free(session_structure->alicerfullbuf.data);
+    }
+
     free(session_structure);
 }
 
@@ -952,9 +964,7 @@ int session_state_deserialize_protobuf(session_state **state, Textsecure__Sessio
     if(session_structure->has_alicesbuf) {
         result = alice_s_buf_deserialize_protobuf(
                 &result_state->alice_s_buf,
-                session_structure->alicesbuf.data,
-                session_structure->alicesbuf.len,
-                global_context);
+                session_structure->alicesbuf.data);
         if(result < 0) {
             goto complete;
         }
@@ -963,9 +973,7 @@ int session_state_deserialize_protobuf(session_state **state, Textsecure__Sessio
     if(session_structure->has_alicecbuf) {
         result = alice_c_buf_deserialize_protobuf(
                 &result_state->alice_c_buf,
-                session_structure->alicecbuf.data,
-                session_structure->alicecbuf.len,
-                global_context);
+                session_structure->alicecbuf.data);
         if(result < 0) {
             goto complete;
         }
@@ -974,9 +982,7 @@ int session_state_deserialize_protobuf(session_state **state, Textsecure__Sessio
     if(session_structure->has_alicexfullbuf) {
         result = alice_Xfull_buf_deserialize_protobuf(
                 &result_state->alice_Xfull_buf,
-                session_structure->alicexfullbuf.data,
-                session_structure->alicexfullbuf.len,
-                global_context);
+                session_structure->alicexfullbuf.data);
         if(result < 0) {
             goto complete;
         }
@@ -985,9 +991,7 @@ int session_state_deserialize_protobuf(session_state **state, Textsecure__Sessio
     if(session_structure->has_alicerfullbuf) {
         result = alice_Rfull_buf_deserialize_protobuf(
                 &result_state->alice_Rfull_buf,
-                session_structure->alicerfullbuf.data,
-                session_structure->alicerfullbuf.len,
-                global_context);
+                session_structure->alicerfullbuf.data);
         if(result < 0) {
             goto complete;
         }
