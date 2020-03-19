@@ -150,44 +150,31 @@ START_TEST(test_schnorr_verification)
     result = signal_protocol_session_load_session(alice_store, &bob_record, &bob_address);
     state = session_record_get_state(bob_record);
 
-    printf("loaded s_buf.....\n");
-    print(session_state_get_alice_s(state), session_state_get_alice_s(state)->len);
-    printf("loaded c_buf.....\n");
-    print(session_state_get_alice_c(state), session_state_get_alice_c(state)->len);
-    printf("loaded Xfull_buf.....\n");
-    print(session_state_get_alice_Xfull(state), session_state_get_alice_Xfull(state)->len);
-    printf("loaded Rfull_buf.....\n");
-    print(session_state_get_alice_Rfull(state), session_state_get_alice_Rfull(state)->len);
+    /*Bob can verify Alice's Schnorr proof*/
+    signal_buffer *s_buf = 0;
+    signal_buffer *c_buf = 0;
+    signal_buffer *Xfull_buf = 0;
+    signal_buffer *Rfull_buf = 0;
+    s_buf = signal_buffer_alloc(DJB_KEY_LEN);
+    c_buf = signal_buffer_alloc(DJB_KEY_LEN);
+    Xfull_buf = signal_buffer_alloc(128);
+    Rfull_buf = signal_buffer_alloc(128);  
 
-    /* 
-        Bob can verify Alice's Schnorr proof here... 
-        Access Alice's "s" by *state->alice_s_buf->data
-    */
-     signal_buffer *s_buf = 0;
-     signal_buffer *c_buf = 0;
-     signal_buffer *Xfull_buf = 0;
-     signal_buffer *Rfull_buf = 0;
-     s_buf = signal_buffer_alloc(DJB_KEY_LEN);
-     c_buf = signal_buffer_alloc(DJB_KEY_LEN);
-     Xfull_buf = signal_buffer_alloc(128);
-     Rfull_buf = signal_buffer_alloc(128);  
+    s_buf = session_state_get_alice_s(state);
+    c_buf = session_state_get_alice_c(state);
+    Xfull_buf = session_state_get_alice_Xfull(state);
+    Rfull_buf = session_state_get_alice_Rfull(state);
 
-     s_buf = session_state_get_alice_s(state);
-     c_buf = session_state_get_alice_c(state);
-     Xfull_buf = session_state_get_alice_Xfull(state);
-     Rfull_buf = session_state_get_alice_Rfull(state);
+    uint8_t *bob_lhs = malloc(DJB_KEY_LEN);
+    uint8_t *bob_rhs = malloc(DJB_KEY_LEN);
 
-     uint8_t *bob_lhs = malloc(DJB_KEY_LEN);
-     uint8_t *bob_rhs = malloc(DJB_KEY_LEN);
-
-     build_bob_lhs(bob_lhs, &s_buf);
-     build_bob_rhs(bob_rhs, &c_buf, &Xfull_buf, &Rfull_buf);
+    build_bob_lhs(bob_lhs, &s_buf);
+    build_bob_rhs(bob_rhs, &c_buf, &Xfull_buf, &Rfull_buf);
          
     result = memcmp(bob_lhs,bob_rhs,DJB_KEY_LEN);
-         
     if (result!=0) {
         printf("Bob's schnoor test of Alice failed!\n");
-    } else printf("\t Bob's schnoor proof of Alice passed\n");  
+    } else printf("\t Bob's schnoor proof of Alice passed\n"); 
 
     /* Cleanup */
     SIGNAL_UNREF(bob_pre_key);
