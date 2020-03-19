@@ -146,22 +146,8 @@ START_TEST(test_schnorr_verification)
     ck_assert_int_eq(result, 0);
      
     /* Bob loads session state, including Alice's Schnorr proof */
-    result = signal_protocol_session_load_session(session_builder_get_store(alice_session_builder), &bob_record, session_builder_get_remote_address(alice_session_builder));
+    result = signal_protocol_session_load_session(alice_store, &bob_record, &bob_address);
     state = session_record_get_state(bob_record);
-
-    printf("loaded s_buf.....\n");
-    print(session_state_get_alice_s(state), session_state_get_alice_s(state)->len);
-    printf("loaded c_buf.....\n");
-    print(session_state_get_alice_c(state), session_state_get_alice_c(state)->len);
-    printf("loaded Xfull_buf.....\n");
-    print(session_state_get_alice_Xfull(state), session_state_get_alice_Xfull(state)->len);
-    printf("loaded Rfull_buf.....\n");
-    print(session_state_get_alice_Rfull(state), session_state_get_alice_Rfull(state)->len);
-
-    /* 
-        Bob can verify Alice's Schnorr proof here... 
-        Access Alice's "s" by *state->alice_s_buf->data
-    */
 
     /* Cleanup */
     SIGNAL_UNREF(bob_pre_key);
