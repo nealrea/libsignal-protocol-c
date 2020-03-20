@@ -1331,13 +1331,16 @@ START_TEST(test_optional_one_time_pre_key)
     result = curve_generate_key_pair(global_context, &bob_pre_key_pair);
     ck_assert_int_eq(result, 0);
 
-    ec_key_pair *bob_signed_pre_key_pair = 0;
-    result = curve_generate_key_pair(global_context, &bob_signed_pre_key_pair);
-    ck_assert_int_eq(result, 0);
-
     ratchet_identity_key_pair *bob_identity_key_pair = 0;
     result = signal_protocol_identity_get_key_pair(bob_store, &bob_identity_key_pair);
     ck_assert_int_eq(result, 0);
+
+    //Generate Bob's signed pre key with actual Schnorr proof values included
+    session_signed_pre_key *bob_signed_pre_key = 0;
+    result = signal_protocol_key_helper_generate_signed_pre_key(&bob_signed_pre_key,
+            bob_identity_key_pair, 22, time(0), global_context);
+    ck_assert_int_eq(result, 0);
+    ec_key_pair *bob_signed_pre_key_pair = session_signed_pre_key_get_key_pair(bob_signed_pre_key);
 
     signal_buffer *bob_signed_pre_key_public_serialized = 0;
     result = ec_public_key_serialize(&bob_signed_pre_key_public_serialized,
@@ -1352,10 +1355,6 @@ START_TEST(test_optional_one_time_pre_key)
             signal_buffer_len(bob_signed_pre_key_public_serialized));
     ck_assert_int_eq(result, 0);
 
-    uint8_t Rhatfull = 0;
-    uint8_t shat = 0;
-    uint8_t chat = 0;
-    uint8_t Yfull = 0;
     session_pre_key_bundle *bob_pre_key = 0;
     result = session_pre_key_bundle_create(&bob_pre_key,
             bob_local_registration_id,
@@ -1366,10 +1365,10 @@ START_TEST(test_optional_one_time_pre_key)
             signal_buffer_data(bob_signed_pre_key_signature),
             signal_buffer_len(bob_signed_pre_key_signature),
             ratchet_identity_key_pair_get_public(bob_identity_key_pair),
-            &Rhatfull,
-            &shat,
-            &chat,
-            &Yfull);
+            session_signed_pre_key_get_Rhatfull(bob_signed_pre_key),
+            session_signed_pre_key_get_shat(bob_signed_pre_key),
+            session_signed_pre_key_get_chat(bob_signed_pre_key),
+            session_signed_pre_key_get_Yfull(bob_signed_pre_key));
     ck_assert_int_eq(result, 0);
 
     /* Have Alice process Bob's pre key bundle */
@@ -1778,7 +1777,7 @@ Suite *session_builder_suite(void)
 //     tcase_add_test(tcase, test_repeat_bundle_message_v2);
 //     tcase_add_test(tcase, test_repeat_bundle_message_v3);
 //     tcase_add_test(tcase, test_bad_message_bundle);
-//     tcase_add_test(tcase, test_optional_one_time_pre_key);
+    tcase_add_test(tcase, test_optional_one_time_pre_key);
     suite_add_tcase(suite, tcase);
 
     return suite;
