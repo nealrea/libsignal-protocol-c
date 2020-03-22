@@ -12,6 +12,7 @@ void shuffle_buffers(signal_buffer **array, size_t n);
 void shuffle_ec_public_keys(ec_public_key **array, size_t n);
 ec_public_key *create_test_ec_public_key(signal_context *context);
 ec_private_key *create_test_ec_private_key(signal_context *context);
+int generate_test_schnorr(session_signed_pre_key *signed_pre_key, signal_context *context);
 
 /* Test logging */
 void test_log(int level, const char *message, size_t len, void *user_data);

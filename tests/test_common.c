@@ -5,8 +5,12 @@
 #include <check.h>
 
 #include "../src/signal_protocol.h"
+#include "../src/signal_protocol_internal.h"
 #include "curve.h"
 #include "uthash.h"
+
+#define DJB_KEY_LEN 32
+#define FULL_GROUP_ELEMENT_LEN 128
 
 /*
  * This is an implementation of Jenkin's "One-at-a-Time" hash.
@@ -115,6 +119,69 @@ ec_private_key *create_test_ec_private_key(signal_context *context)
     SIGNAL_REF(private_key);
     SIGNAL_UNREF(key_pair);
     return private_key;
+}
+
+int generate_test_schnorr(session_signed_pre_key *signed_pre_key, signal_context *context)
+{
+    int result = 0;
+    uint8_t *fake_rhat = 0;
+    uint8_t *fake_Rhatfull = 0;
+    uint8_t *fake_shat = 0;
+    uint8_t *fake_chat = 0;
+    uint8_t *fake_Yfull = 0;
+
+    fake_rhat = malloc(sizeof(uint8_t) * DJB_KEY_LEN);
+    fake_Rhatfull = malloc(sizeof(uint8_t) * FULL_GROUP_ELEMENT_LEN);
+    fake_shat = malloc(sizeof(uint8_t) * DJB_KEY_LEN);
+    fake_chat = malloc(sizeof(uint8_t) * DJB_KEY_LEN);
+    fake_Yfull = malloc(sizeof(uint8_t) * FULL_GROUP_ELEMENT_LEN);
+
+    result = signal_crypto_random(context, fake_rhat, DJB_KEY_LEN);
+    if(result < 0) {
+        goto complete;
+    }
+    result = signal_crypto_random(context, fake_Rhatfull, FULL_GROUP_ELEMENT_LEN);
+    if(result < 0) {
+        goto complete;
+    }
+    result = signal_crypto_random(context, fake_shat, DJB_KEY_LEN);
+    if(result < 0) {
+        goto complete;
+    }
+    result = signal_crypto_random(context, fake_chat, DJB_KEY_LEN);
+    if(result < 0) {
+        goto complete;
+    }
+    result = signal_crypto_random(context, fake_Yfull, FULL_GROUP_ELEMENT_LEN);
+    if(result < 0) {
+        goto complete;
+    }
+
+    memcpy(session_signed_pre_key_get_rhat(signed_pre_key), fake_rhat, DJB_KEY_LEN);
+    memcpy(session_signed_pre_key_get_Rhatfull(signed_pre_key), fake_Rhatfull, FULL_GROUP_ELEMENT_LEN);
+    memcpy(session_signed_pre_key_get_shat(signed_pre_key), fake_shat, DJB_KEY_LEN);
+    memcpy(session_signed_pre_key_get_chat(signed_pre_key), fake_chat, DJB_KEY_LEN);
+    memcpy(session_signed_pre_key_get_Yfull(signed_pre_key), fake_Yfull, FULL_GROUP_ELEMENT_LEN);
+
+    complete:
+    if(result < 0) {
+        if(fake_rhat) {
+            SIGNAL_UNREF(fake_rhat);
+        }
+        if(fake_Rhatfull) {
+            SIGNAL_UNREF(fake_Rhatfull);
+        }
+        if(fake_shat) {
+            SIGNAL_UNREF(fake_shat);
+        }
+        if(fake_chat) {
+            SIGNAL_UNREF(fake_chat);
+        }
+        if(fake_Yfull) {
+            SIGNAL_UNREF(fake_Yfull);
+        }
+    }
+    return result;
 }
 
 void test_log(int level, const char *message, size_t len, void *user_data)
