@@ -1682,6 +1682,9 @@ int main(void)
     suite = simultaneous_initiate_suite();
     runner = srunner_create(suite);
 
+    //allows for breakpoint setting in test processes
+    srunner_set_fork_status(runner, CK_NOFORK);
+
     srunner_run_all(runner, CK_VERBOSE);
     number_failed = srunner_ntests_failed(runner);
     srunner_free(runner);
