@@ -452,6 +452,10 @@ int session_builder_process_pre_key_bundle(session_builder *builder, session_pre
     session_state_set_remote_registration_id(state,
             session_pre_key_bundle_get_registration_id(bundle));
     session_state_set_alice_base_key(state, ec_key_pair_get_public(our_base_key));
+    session_state_set_alice_s(state, s_buf);
+    session_state_set_alice_c(state, c_buf);
+    session_state_set_alice_Xfull(state, Xfull_buf);
+    session_state_set_alice_Rfull(state, Rfull_buf); 
 
     result = signal_protocol_session_store_session(builder->store, builder->remote_address, record);
     if(result < 0) {

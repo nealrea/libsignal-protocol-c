@@ -756,7 +756,7 @@ const ProtobufCMessageDescriptor textsecure__session_structure__pending_pre_key_
   (ProtobufCMessageInit) textsecure__session_structure__pending_pre_key__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor textsecure__session_structure__field_descriptors[13] =
+static const ProtobufCFieldDescriptor textsecure__session_structure__field_descriptors[17] =
 {
   {
     "sessionVersion",
@@ -914,9 +914,61 @@ static const ProtobufCFieldDescriptor textsecure__session_structure__field_descr
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "aliceSBuf",
+    14,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BYTES,
+    offsetof(Textsecure__SessionStructure, has_alicesbuf),
+    offsetof(Textsecure__SessionStructure, alicesbuf),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "aliceCBuf",
+    15,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BYTES,
+    offsetof(Textsecure__SessionStructure, has_alicecbuf),
+    offsetof(Textsecure__SessionStructure, alicecbuf),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "aliceXfullBuf",
+    16,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BYTES,
+    offsetof(Textsecure__SessionStructure, has_alicexfullbuf),
+    offsetof(Textsecure__SessionStructure, alicexfullbuf),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "aliceRfullBuf",
+    17,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BYTES,
+    offsetof(Textsecure__SessionStructure, has_alicerfullbuf),
+    offsetof(Textsecure__SessionStructure, alicerfullbuf),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned textsecure__session_structure__field_indices_by_name[] = {
   12,   /* field[12] = aliceBaseKey */
+  14,   /* field[14] = aliceCBuf */
+  16,   /* field[16] = aliceRfullBuf */
+  13,   /* field[13] = aliceSBuf */
+  15,   /* field[15] = aliceXfullBuf */
   1,   /* field[1] = localIdentityPublic */
   10,   /* field[10] = localRegistrationId */
   11,   /* field[11] = needsRefresh */
@@ -933,7 +985,7 @@ static const unsigned textsecure__session_structure__field_indices_by_name[] = {
 static const ProtobufCIntRange textsecure__session_structure__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 13 }
+  { 0, 17 }
 };
 const ProtobufCMessageDescriptor textsecure__session_structure__descriptor =
 {
@@ -943,7 +995,7 @@ const ProtobufCMessageDescriptor textsecure__session_structure__descriptor =
   "Textsecure__SessionStructure",
   "textsecure",
   sizeof(Textsecure__SessionStructure),
-  13,
+  17,
   textsecure__session_structure__field_descriptors,
   textsecure__session_structure__field_indices_by_name,
   1,  textsecure__session_structure__number_ranges,
