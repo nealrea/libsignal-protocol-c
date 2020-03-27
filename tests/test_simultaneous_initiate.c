@@ -1582,7 +1582,7 @@ session_pre_key_bundle *create_alice_pre_key_bundle(signal_protocol_store_contex
     ck_assert_int_eq(result, 0);
 
     SIGNAL_UNREF(pre_key_record);
-    SIGNAL_UNREF(signed_pre_key_record);
+//     SIGNAL_UNREF(signed_pre_key_record);
     SIGNAL_UNREF(alice_identity_key_pair);
     SIGNAL_UNREF(alice_unsigned_pre_key);
     signal_buffer_free(alice_signed_pre_key_public_serialized);
@@ -1647,7 +1647,7 @@ session_pre_key_bundle *create_bob_pre_key_bundle(signal_protocol_store_context 
     ck_assert_int_eq(result, 0);
 
     SIGNAL_UNREF(pre_key_record);
-    SIGNAL_UNREF(signed_pre_key_record);
+//     SIGNAL_UNREF(signed_pre_key_record);
     SIGNAL_UNREF(bob_identity_key_pair);
     SIGNAL_UNREF(bob_unsigned_pre_key);
     signal_buffer_free(bob_signed_pre_key_public_serialized);
