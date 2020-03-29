@@ -303,7 +303,7 @@ int session_builder_process_pre_key_bundle(session_builder *builder, session_pre
         printf("test failed!\n");
         printf("quiting\n");
         goto complete;
-        } else printf("\tpassed.\n");
+        } //else printf("\tpassed.\n");
     
         result = curve_verify_signature(identity_key,
                 signal_buffer_data(serialized_signed_pre_key),
@@ -397,6 +397,10 @@ int session_builder_process_pre_key_bundle(session_builder *builder, session_pre
     
     signal_hmac_sha256_cleanup(builder->global_context, hmac_context);
 
+    // "clamping" suggested in Alex's code ---added
+    c_buf->data[31] &= 127; 
+    c_buf->data[31] |= 64;
+
     // generate value for s
     // s = r+cxmodq
     sc_muladd(signal_buffer_data(s_buf), get_private_data(ec_key_pair_get_private(our_base_key)), signal_buffer_data(c_buf), signal_buffer_data(r_buf));
@@ -476,6 +480,29 @@ complete:
     SIGNAL_UNREF(parameters);
     signal_unlock(builder->global_context);
     return result;
+}
+
+void build_bob_lhs(uint8_t* bob_lhs, signal_buffer** s_buf) {
+    uint8_t *s = signal_buffer_data(*s_buf);
+    ge_p3 bob_lhs_pre;
+    ge_scalarmult_base(&bob_lhs_pre,s);
+    justx3(bob_lhs,&bob_lhs_pre);
+}
+
+void build_bob_rhs(uint8_t* bob_rhs, signal_buffer** c_buf, signal_buffer** Xfull_buf, signal_buffer** Rfull_buf){
+    uint8_t *c = signal_buffer_data(*c_buf);
+    uint8_t *Xfull_data = signal_buffer_data(*Xfull_buf);
+    uint8_t *Rfull_data = signal_buffer_data(*Rfull_buf);
+
+    ge_p3 Xfull;
+    ge_p3 Rfull;
+    ge_p3 bob_rhs_pre;   
+    ge_frombytes_128(&Xfull, Xfull_data);
+    ge_frombytes_128(&Rfull, Rfull_data);
+
+    ge_scalarmult(&bob_rhs_pre, c, &Xfull); 
+    ge_p3_add(&bob_rhs_pre,&bob_rhs_pre,&Rfull);
+    justx3(bob_rhs, &bob_rhs_pre);
 }
 
 void session_builder_free(session_builder *builder)
