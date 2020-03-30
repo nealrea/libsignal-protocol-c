@@ -149,6 +149,12 @@ START_TEST(test_schnorr_verification)
     result = signal_protocol_session_load_session(alice_store, &bob_record, &bob_address);
     state = session_record_get_state(bob_record);
 
+    /*Bob can verify Alice's Schnorr proof*/        
+    result = bobs_schnorr_check_of_alice(state);
+    if (result!=0) {
+        printf("Bob's schnoor test of Alice failed!\n");
+    } else printf("\t Bob's schnoor proof of Alice passed\n"); 
+
     /* Cleanup */
     SIGNAL_UNREF(bob_pre_key);
     signal_buffer_free(bob_signed_pre_key_signature);
