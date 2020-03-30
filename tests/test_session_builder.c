@@ -151,28 +151,8 @@ START_TEST(test_schnorr_verification)
     state = session_record_get_state(bob_record);
 
 
-    /*Bob can verify Alice's Schnorr proof*/
-    signal_buffer *s_buf = 0;
-    signal_buffer *c_buf = 0;
-    signal_buffer *Xfull_buf = 0;
-    signal_buffer *Rfull_buf = 0;
-    s_buf = signal_buffer_alloc(DJB_KEY_LEN);
-    c_buf = signal_buffer_alloc(DJB_KEY_LEN);
-    Xfull_buf = signal_buffer_alloc(128);
-    Rfull_buf = signal_buffer_alloc(128);  
-
-    s_buf = session_state_get_alice_s(state);
-    c_buf = session_state_get_alice_c(state);
-    Xfull_buf = session_state_get_alice_Xfull(state);
-    Rfull_buf = session_state_get_alice_Rfull(state);
-
-    uint8_t *bob_lhs = malloc(DJB_KEY_LEN);
-    uint8_t *bob_rhs = malloc(DJB_KEY_LEN);
-
-    build_bob_lhs(bob_lhs, &s_buf);
-    build_bob_rhs(bob_rhs, &c_buf, &Xfull_buf, &Rfull_buf);
-         
-    result = memcmp(bob_lhs,bob_rhs,DJB_KEY_LEN);
+    /*Bob can verify Alice's Schnorr proof*/        
+    result = bobs_schnorr_check_of_alice(state);
     if (result!=0) {
         printf("Bob's schnoor test of Alice failed!\n");
     } else printf("\t Bob's schnoor proof of Alice passed\n"); 
