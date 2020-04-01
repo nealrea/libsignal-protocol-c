@@ -81,12 +81,15 @@ START_TEST(test_basic_simultaneous_initiate)
     setup_test_store_context(&alice_store, global_context);
     signal_protocol_store_context *bob_store = 0;
     setup_test_store_context(&bob_store, global_context);
+    signal_protocol_store_context *chloe_store = 0;
+    setup_test_store_context(&chloe_store, global_context);
 
     /* Create the pre key bundles */
     session_pre_key_bundle *alice_pre_key_bundle =
             create_alice_pre_key_bundle(alice_store);
     session_pre_key_bundle *bob_pre_key_bundle =
             create_bob_pre_key_bundle(bob_store);
+    /* There is no need to create a pre_key_bundle for Chloe because nobody is trying to talk to her in this scenario */
 
     /* Create the session builders */
     session_builder *alice_session_builder = 0;
@@ -95,6 +98,11 @@ START_TEST(test_basic_simultaneous_initiate)
 
     session_builder *bob_session_builder = 0;
     result = session_builder_create(&bob_session_builder, bob_store, &alice_address, global_context);
+    ck_assert_int_eq(result, 0);
+
+    /* Chloe creates a session builder with Bob's address because she wants to talk to him */
+    session_builder *chloe_session_builder = 0;
+    result = session_builder_create(&chloe_session_builder, chloe_store, &bob_address, global_context);
     ck_assert_int_eq(result, 0);
 
     /* Create the session ciphers */
@@ -106,12 +114,19 @@ START_TEST(test_basic_simultaneous_initiate)
     result = session_cipher_create(&bob_session_cipher, bob_store, &alice_address, global_context);
     ck_assert_int_eq(result, 0);
 
+    session_cipher *chloe_session_cipher = 0;
+    result = session_cipher_create(&chloe_session_cipher, chloe_store, &bob_address, global_context);
+    ck_assert_int_eq(result, 0);
+
     /* Process the pre key bundles */
     result = session_builder_process_pre_key_bundle(alice_session_builder, bob_pre_key_bundle);
     ck_assert_int_eq(result, 0);
 
     result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
     ck_assert_int_eq(result, 0);
+
+    result = session_builder_process_pre_key_bundle(chloe_session_builder, bob_pre_key_bundle);
+    ck_assert_int_eq(result, 0);        
 
     /* Encrypt a pair of messages */
     static const char message_for_bob_data[] = "hey there";
@@ -157,6 +172,14 @@ START_TEST(test_basic_simultaneous_initiate)
     result = session_cipher_decrypt_pre_key_signal_message(bob_session_cipher, message_for_bob_copy, 0, &bob_plaintext);
     ck_assert_int_eq(result, 0);
 
+    /* Verify that the session IDs are not equal */
+    ck_assert_int_eq(is_session_id_equal(chloe_store, bob_store), 0);
+
+    /* This should fail -- Chloe should not be able to decrypt Bob's message to Alice */
+    signal_buffer *chloe_plaintext = 0;
+    result = session_cipher_decrypt_pre_key_signal_message(chloe_session_cipher, message_for_alice_copy, 0, &chloe_plaintext);
+    ck_assert_int_ne(result, 0); /* Notice that in this line we are checking that the decryption failed (ne means not equal) */
+
     /* Verify that the messages decrypted correctly */
     uint8_t *alice_plaintext_data = signal_buffer_data(alice_plaintext);
     size_t alice_plaintext_len = signal_buffer_len(alice_plaintext);
@@ -195,6 +218,23 @@ START_TEST(test_basic_simultaneous_initiate)
     signal_buffer *response_plaintext = 0;
     result = session_cipher_decrypt_signal_message(bob_session_cipher, alice_response_copy, 0, &response_plaintext);
     ck_assert_int_eq(result, 0);
+
+     /* Chloe now attempts to decrypt Alice's message */
+    result = session_builder_create(&chloe_session_builder, chloe_store, &alice_address, global_context);
+    ck_assert_int_eq(result, 0);
+
+    result = session_cipher_create(&chloe_session_cipher, chloe_store, &alice_address, global_context);
+    ck_assert_int_eq(result, 0);
+
+    result = session_builder_process_pre_key_bundle(chloe_session_builder, alice_pre_key_bundle);
+    ck_assert_int_eq(result, 0);      
+
+    /* Verify that the session IDs are not equal */
+    ck_assert_int_eq(is_session_id_equal(chloe_store, alice_store), 0);
+
+    /* This should fail -- Chloe should not be able to decrypt Alice's message to Bob */
+    result = session_cipher_decrypt_signal_message(chloe_session_cipher, alice_response_copy, 0, &chloe_plaintext);
+    ck_assert_int_ne(result, 0); /* Notice that in this line we are checking that the decryption failed (ne means not equal) */
 
     /* Verify that the message decrypted correctly */
     uint8_t *response_plaintext_data = signal_buffer_data(response_plaintext);
