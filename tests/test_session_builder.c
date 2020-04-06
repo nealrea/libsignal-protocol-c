@@ -305,21 +305,18 @@ START_TEST(test_basic_pre_key_v3)
 
     session_record *loaded_record = 0;
     session_state *loaded_record_state = 0;
-    session_state *state = 0;
     result = signal_protocol_session_load_session(alice_store, &loaded_record, &bob_address);
     ck_assert_int_eq(result, 0);
 
-    /* Bob loads session state, including Alice's Schnorr proof */
-    state = session_record_get_state(loaded_record);
-
+    loaded_record_state = session_record_get_state(loaded_record);
+    ck_assert_ptr_ne(loaded_record_state, 0);
+    
     /*Bob can verify Alice's Schnorr proof*/        
-    result = bobs_schnorr_check_of_alice(state);
+    result = bobs_schnorr_check_of_alice(loaded_record_state);
     ck_assert_int_eq(result, 0);
     if (result!=0) {
         printf("Bob's schnoor test of Alice failed!\n");
     } else printf("\t Bob's schnoor proof of Alice passed\n");
-    loaded_record_state = session_record_get_state(loaded_record);
-    ck_assert_ptr_ne(loaded_record_state, 0);
 
     ck_assert_int_eq(session_state_get_session_version(loaded_record_state), 3);
 
@@ -516,6 +513,8 @@ START_TEST(test_basic_pre_key_v3)
     ck_assert_int_eq(ciphertext_message_get_type(outgoing_message), CIPHERTEXT_PREKEY_TYPE);
 
     session_record *bob_record = 0;
+    session_state *state = 0;
+    
     /* Bob loads session state, including Alice's Schnorr proof */
     result = signal_protocol_session_load_session(alice_store, &bob_record, &bob_address);
     state = session_record_get_state(bob_record);
