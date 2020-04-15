@@ -51,9 +51,7 @@ int session_builder_create(session_builder **builder,
  */
 int session_builder_process_pre_key_bundle(session_builder *builder, session_pre_key_bundle *bundle);
 
-void build_bob_lhs(uint8_t* bob_lhs, signal_buffer** s_buf);
-
-void build_bob_rhs(uint8_t* bob_rhs, signal_buffer** c_buf, signal_buffer** Xfull_buf, signal_buffer** Rfull_buf);
+int bobs_schnorr_check_of_alice(session_state *state); 
 
 void session_builder_free(session_builder *builder);
 

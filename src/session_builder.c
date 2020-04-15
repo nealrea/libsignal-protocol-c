@@ -358,7 +358,7 @@ int session_builder_process_pre_key_bundle(session_builder *builder, session_pre
     if (result < 0) {
         goto complete;
     }
-    r_buf = signal_buffer_create(get_private_data(r), DJB_KEY_LEN);
+    r_buf = signal_buffer_create(get_private_data(r), DJB_KEY_LEN); 
 
     // generate hash value for c
     void *hmac_context = 0;
@@ -504,6 +504,34 @@ void build_bob_rhs(uint8_t* bob_rhs, signal_buffer** c_buf, signal_buffer** Xful
     ge_p3_add(&bob_rhs_pre,&bob_rhs_pre,&Rfull);
     justx3(bob_rhs, &bob_rhs_pre);
 }
+
+int bobs_schnorr_check_of_alice(session_state *state){
+    int result =0;
+    signal_buffer *s_buf = 0;
+    signal_buffer *c_buf = 0;
+    signal_buffer *Xfull_buf = 0;
+    signal_buffer *Rfull_buf = 0;
+    s_buf = signal_buffer_alloc(DJB_KEY_LEN);
+    c_buf = signal_buffer_alloc(DJB_KEY_LEN);
+    Xfull_buf = signal_buffer_alloc(128);
+    Rfull_buf = signal_buffer_alloc(128);  
+
+    s_buf = session_state_get_alice_s(state);
+    c_buf = session_state_get_alice_c(state);
+    Xfull_buf = session_state_get_alice_Xfull(state);
+    Rfull_buf = session_state_get_alice_Rfull(state);
+
+    uint8_t *bob_lhs = malloc(DJB_KEY_LEN);
+    uint8_t *bob_rhs = malloc(DJB_KEY_LEN);
+
+    build_bob_lhs(bob_lhs, &s_buf);
+    build_bob_rhs(bob_rhs, &c_buf, &Xfull_buf, &Rfull_buf);
+         
+    result = memcmp(bob_lhs,bob_rhs,DJB_KEY_LEN);
+    
+    return result;
+}
+
 
 void session_builder_free(session_builder *builder)
 {
