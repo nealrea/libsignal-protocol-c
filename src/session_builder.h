@@ -51,6 +51,8 @@ int session_builder_create(session_builder **builder,
  */
 int session_builder_process_pre_key_bundle(session_builder *builder, session_pre_key_bundle *bundle);
 
+int bobs_schnorr_check_of_alice(session_state *state); 
+
 void session_builder_free(session_builder *builder);
 
 #ifdef __cplusplus
