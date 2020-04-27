@@ -25,6 +25,8 @@ signal_context *global_context;
 pthread_mutex_t global_mutex;
 pthread_mutexattr_t global_mutex_attr;
 
+ec_key_pair *alice_signed_pre_key;
+ec_key_pair *bob_signed_pre_key;
 int32_t alice_signed_pre_key_id;
 int32_t bob_signed_pre_key_id;
 
@@ -60,12 +62,20 @@ void test_setup()
     result = signal_context_set_locking_functions(global_context, test_lock, test_unlock);
     ck_assert_int_eq(result, 0);
 
+    result = curve_generate_key_pair(global_context, &alice_signed_pre_key);
+    ck_assert_int_eq(result, 0);
+
+    result = curve_generate_key_pair(global_context, &bob_signed_pre_key);
+    ck_assert_int_eq(result, 0);
+
     alice_signed_pre_key_id = (rand() & 0x7FFFFFFF) % PRE_KEY_MEDIUM_MAX_VALUE;
     bob_signed_pre_key_id = (rand() & 0x7FFFFFFF) % PRE_KEY_MEDIUM_MAX_VALUE;
 }
 
 void test_teardown()
 {
+    SIGNAL_UNREF(alice_signed_pre_key);
+    SIGNAL_UNREF(bob_signed_pre_key);
     signal_context_destroy(global_context);
 
     pthread_mutex_destroy(&global_mutex);
@@ -1541,10 +1551,10 @@ session_pre_key_bundle *create_alice_pre_key_bundle(signal_protocol_store_contex
     ck_assert_int_eq(result, 0);
     
     session_signed_pre_key *signed_pre_key_record = 0;
-    result = signal_protocol_key_helper_generate_signed_pre_key(&signed_pre_key_record, alice_identity_key_pair, alice_signed_pre_key_id, time(0), global_context);
+    result = signal_protocol_key_helper_generate_signed_pre_key_ec_pair(&signed_pre_key_record, alice_identity_key_pair, alice_signed_pre_key_id, time(0), global_context, alice_signed_pre_key);
     ck_assert_int_eq(result, 0);
 
-    ec_public_key *alice_signed_pre_key_public = ec_key_pair_get_public(session_signed_pre_key_get_key_pair(signed_pre_key_record));
+    ec_public_key *alice_signed_pre_key_public = ec_key_pair_get_public(alice_signed_pre_key);
 
     signal_buffer *alice_signed_pre_key_public_serialized = 0;
     result = ec_public_key_serialize(&alice_signed_pre_key_public_serialized, alice_signed_pre_key_public);
@@ -1606,10 +1616,10 @@ session_pre_key_bundle *create_bob_pre_key_bundle(signal_protocol_store_context 
     ck_assert_int_eq(result, 0);
 
     session_signed_pre_key *signed_pre_key_record = 0;
-    result = signal_protocol_key_helper_generate_signed_pre_key(&signed_pre_key_record, bob_identity_key_pair, bob_signed_pre_key_id, time(0), global_context);
+    result = signal_protocol_key_helper_generate_signed_pre_key_ec_pair(&signed_pre_key_record, bob_identity_key_pair, bob_signed_pre_key_id, time(0), global_context, bob_signed_pre_key);
     ck_assert_int_eq(result, 0);
 
-    ec_public_key *bob_signed_pre_key_public = ec_key_pair_get_public(session_signed_pre_key_get_key_pair(signed_pre_key_record));
+    ec_public_key *bob_signed_pre_key_public = ec_key_pair_get_public(bob_signed_pre_key);
 
     signal_buffer *bob_signed_pre_key_public_serialized = 0;
     result = ec_public_key_serialize(&bob_signed_pre_key_public_serialized, bob_signed_pre_key_public);
@@ -1681,9 +1691,6 @@ int main(void)
 
     suite = simultaneous_initiate_suite();
     runner = srunner_create(suite);
-
-    //allows for breakpoint setting in test processes
-    srunner_set_fork_status(runner, CK_NOFORK);
 
     srunner_run_all(runner, CK_VERBOSE);
     number_failed = srunner_ntests_failed(runner);
