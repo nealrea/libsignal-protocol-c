@@ -254,6 +254,97 @@ void signal_protocol_key_helper_generate_shat(ec_key_pair *ec_pair, signal_buffe
     sc_muladd(signal_buffer_data(shat_buf), get_private_data(ec_key_pair_get_private(ec_pair)), signal_buffer_data(chat_buf), signal_buffer_data(rhat_buf));
 }
 
+int signal_protocol_key_helper_generate_signed_pre_key_ec_pair(session_signed_pre_key **signed_pre_key,
+        const ratchet_identity_key_pair *identity_key_pair,
+        uint32_t signed_pre_key_id,
+        uint64_t timestamp,
+        signal_context *global_context, ec_key_pair *ec_pair)
+{
+    int result = 0;
+    session_signed_pre_key *result_signed_pre_key = 0;
+    signal_buffer *public_buf = 0;
+    signal_buffer *signature_buf = 0;
+    signal_buffer *rhat_buf = 0;
+    ge_p3 Rhatfull;
+    signal_buffer *Rhatfull_buf = 0;
+    signal_buffer *shat_buf = 0;
+    signal_buffer *chat_buf = 0;
+    ge_p3 Yfull;
+    signal_buffer *Yfull_buf = 0;
+    rhat_buf = signal_buffer_alloc(DJB_KEY_LEN);
+    chat_buf = signal_buffer_alloc(DJB_KEY_LEN);
+    shat_buf = signal_buffer_alloc(DJB_KEY_LEN);
+    Rhatfull_buf = signal_buffer_alloc(128);
+    Yfull_buf = signal_buffer_alloc(128);
+    ec_public_key *public_key = 0;
+    ec_private_key *private_key = 0;
+
+    assert(global_context);
+
+    public_key = ec_key_pair_get_public(ec_pair);
+    result = ec_public_key_serialize(&public_buf, public_key);
+    if(result < 0) {
+        goto complete;
+    }
+
+    private_key = ratchet_identity_key_pair_get_private(identity_key_pair);
+
+    result = curve_calculate_signature(global_context,
+            &signature_buf,
+            private_key,
+            signal_buffer_data(public_buf),
+            signal_buffer_len(public_buf));
+    if(result < 0) {
+        goto complete;
+    }
+
+    // generate random value for rhat
+    result = signal_protocol_key_helper_generate_rhat(global_context, &rhat_buf);
+    if (result < 0) {
+        goto complete;
+    }    
+
+    // generate hash value for chat
+    result = signal_protocol_key_helper_generate_chat(global_context, identity_key_pair, public_key, &chat_buf);
+    // "clamping" suggested in Alex's code
+    chat_buf->data[31] &= 127; 
+    chat_buf->data[31] |= 64;
+    if (result < 0) {
+        goto complete;
+    }
+
+    // generate value for shat 
+    // shat = rhat + chat*y
+    signal_protocol_key_helper_generate_shat(ec_pair, chat_buf, rhat_buf, shat_buf);
+
+    // generate value for Rhatfull
+    ge_scalarmult_base(&Rhatfull, signal_buffer_data(rhat_buf));
+    ge_p3_tobytes_128(signal_buffer_data(Rhatfull_buf), &Rhatfull);
+
+    // generate value for Yfull
+    ge_scalarmult_base(&Yfull, get_private_data(ec_key_pair_get_private(ec_pair)));
+    ge_p3_tobytes_128(signal_buffer_data(Yfull_buf), &Yfull);
+
+    result = session_signed_pre_key_create(&result_signed_pre_key,
+            signed_pre_key_id, timestamp, ec_pair,
+            signal_buffer_data(signature_buf),
+            signal_buffer_len(signature_buf),
+            signal_buffer_data(rhat_buf),
+            signal_buffer_data(Rhatfull_buf),
+            signal_buffer_data(shat_buf),
+            signal_buffer_data(chat_buf),
+            signal_buffer_data(Yfull_buf));
+
+complete:
+    SIGNAL_UNREF(ec_pair);
+    signal_buffer_free(public_buf);
+    signal_buffer_free(signature_buf);
+    if(result >= 0) {
+        *signed_pre_key = result_signed_pre_key;
+    }
+    return result;
+}
+
 int signal_protocol_key_helper_generate_signed_pre_key(session_signed_pre_key **signed_pre_key,
         const ratchet_identity_key_pair *identity_key_pair,
         uint32_t signed_pre_key_id,
