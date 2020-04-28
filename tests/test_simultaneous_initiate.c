@@ -119,19 +119,30 @@ START_TEST(test_basic_simultaneous_initiate)
     result = session_builder_process_pre_key_bundle(alice_session_builder, bob_pre_key_bundle);
     ck_assert_int_eq(result, 0);
 
-    result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
-    ck_assert_int_eq(result, 0);
-
 /*Bob does schnoor*/
-    session_state *state = 0; 
+    session_state *bob_state = 0; 
     session_record *bob_record = 0;
     signal_protocol_session_load_session(alice_store, &bob_record, &bob_address);
-    state = session_record_get_state(bob_record);      
-    result = bobs_schnorr_check_of_alice(state);
+    bob_state = session_record_get_state(bob_record);      
+    result = bobs_schnorr_check_of_alice(bob_state);
     ck_assert_int_eq(result, 0);
     if (result!=0) {
         printf("Bob's schnoor test of Alice failed!\n");
     } else printf("\t Bob's schnoor proof of Alice passed\n");
+
+    result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
+    ck_assert_int_eq(result, 0);
+
+/*Alice does schnoor*/
+    session_state *alice_state = 0; 
+    session_record *alice_record = 0;
+    signal_protocol_session_load_session(bob_store, &alice_record, &alice_address);
+    alice_state = session_record_get_state(alice_record);      
+    result = bobs_schnorr_check_of_alice(alice_state);
+    ck_assert_int_eq(result, 0);
+    if (result!=0) {
+        printf("Alice's schnoor test of Bob failed!\n");
+    } else printf("\t Alice's schnoor proof of Bob passed\n");
 
     /* Encrypt a pair of messages */
     static const char message_for_bob_data[] = "hey there";
@@ -319,9 +330,6 @@ START_TEST(test_lost_simultaneous_initiate)
     result = session_builder_process_pre_key_bundle(alice_session_builder, bob_pre_key_bundle);
     ck_assert_int_eq(result, 0);
 
-    result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
-    ck_assert_int_eq(result, 0);
-
 /*Bob does schnoor*/
     session_state *state = 0; 
     session_record *bob_record = 0;
@@ -332,6 +340,20 @@ START_TEST(test_lost_simultaneous_initiate)
     if (result!=0) {
         printf("Bob's schnoor test of Alice failed!\n");
     } else printf("\t Bob's schnoor proof of Alice passed\n");
+
+    result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
+    ck_assert_int_eq(result, 0);
+
+/*Alice does schnoor*/
+    session_state *alice_state = 0; 
+    session_record *alice_record = 0;
+    signal_protocol_session_load_session(bob_store, &alice_record, &alice_address);
+    alice_state = session_record_get_state(alice_record);      
+    result = bobs_schnorr_check_of_alice(alice_state);
+    ck_assert_int_eq(result, 0);
+    if (result!=0) {
+        printf("Alice's schnoor test of Bob failed!\n");
+    } else printf("\t Alice's schnoor proof of Bob passed\n");
 
     /* Encrypt a pair of messages */
     static const char message_for_bob_data[] = "hey there";
@@ -501,9 +523,6 @@ START_TEST(test_simultaneous_initiate_lost_message)
     result = session_builder_process_pre_key_bundle(alice_session_builder, bob_pre_key_bundle);
     ck_assert_int_eq(result, 0);
 
-    result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
-    ck_assert_int_eq(result, 0);
-
 /*Bob does schnoor*/
     session_state *state = 0; 
     session_record *bob_record = 0;
@@ -514,6 +533,20 @@ START_TEST(test_simultaneous_initiate_lost_message)
     if (result!=0) {
         printf("Bob's schnoor test of Alice failed!\n");
     } else printf("\t Bob's schnoor proof of Alice passed\n");
+
+    result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
+    ck_assert_int_eq(result, 0);
+
+/*Alice does schnoor*/
+    session_state *alice_state = 0; 
+    session_record *alice_record = 0;
+    signal_protocol_session_load_session(bob_store, &alice_record, &alice_address);
+    alice_state = session_record_get_state(alice_record);      
+    result = bobs_schnorr_check_of_alice(alice_state);
+    ck_assert_int_eq(result, 0);
+    if (result!=0) {
+        printf("Alice's schnoor test of Bob failed!\n");
+    } else printf("\t Alice's schnoor proof of Bob passed\n");
 
     /* Encrypt a pair of messages */
     static const char message_for_bob_data[] = "hey there";
@@ -694,9 +727,6 @@ START_TEST(test_simultaneous_initiate_repeated_messages)
     result = session_builder_process_pre_key_bundle(alice_session_builder, bob_pre_key_bundle);
     ck_assert_int_eq(result, 0);
 
-    result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
-    ck_assert_int_eq(result, 0);
-
 /*Bob does schnoor*/
     session_state *state = 0; 
     session_record *bob_record = 0;
@@ -707,6 +737,20 @@ START_TEST(test_simultaneous_initiate_repeated_messages)
     if (result!=0) {
         printf("Bob's schnoor test of Alice failed!\n");
     } else printf("\t Bob's schnoor proof of Alice passed\n");
+
+    result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
+    ck_assert_int_eq(result, 0);
+
+/*Alice does schnoor*/
+    session_state *alice_state = 0; 
+    session_record *alice_record = 0;
+    signal_protocol_session_load_session(bob_store, &alice_record, &alice_address);
+    alice_state = session_record_get_state(alice_record);      
+    result = bobs_schnorr_check_of_alice(alice_state);
+    ck_assert_int_eq(result, 0);
+    if (result!=0) {
+        printf("Alice's schnoor test of Bob failed!\n");
+    } else printf("\t Alice's schnoor proof of Bob passed\n");
 
     /* Encrypt a pair of messages */
     static const char message_for_bob_data[] = "hey there";
@@ -967,9 +1011,6 @@ START_TEST(test_repeated_simultaneous_initiate_repeated_messages)
         result = session_builder_process_pre_key_bundle(alice_session_builder, bob_pre_key_bundle);
         ck_assert_int_eq(result, 0);
 
-        result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
-        ck_assert_int_eq(result, 0);
-
 /*Bob does schnoor*/
     	session_state *state = 0; 
     	session_record *bob_record = 0;
@@ -980,6 +1021,20 @@ START_TEST(test_repeated_simultaneous_initiate_repeated_messages)
     	if (result!=0) {
         	printf("Bob's schnoor test of Alice failed!\n");
     	} else printf("\t Bob's schnoor proof of Alice passed\n");
+        result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
+        ck_assert_int_eq(result, 0);
+
+/*Alice does schnoor*/
+    session_state *alice_state = 0; 
+    session_record *alice_record = 0;
+    signal_protocol_session_load_session(bob_store, &alice_record, &alice_address);
+    alice_state = session_record_get_state(alice_record);      
+    result = bobs_schnorr_check_of_alice(alice_state);
+    ck_assert_int_eq(result, 0);
+    if (result!=0) {
+        printf("Alice's schnoor test of Bob failed!\n");
+    } else printf("\t Alice's schnoor proof of Bob passed\n");
+
 
         /* Encrypt a pair of messages */
         static const char message_for_bob_data[] = "hey there";
@@ -1239,6 +1294,17 @@ START_TEST(test_repeated_simultaneous_initiate_lost_message_repeated_messages)
     result = session_builder_process_pre_key_bundle(alice_session_builder, bob_lost_pre_key_bundle);
     ck_assert_int_eq(result, 0);
 
+/*Alice does schnoor*/
+    session_state *alice_state = 0; 
+    session_record *alice_record = 0;
+    signal_protocol_session_load_session(bob_store, &alice_record, &alice_address);
+    alice_state = session_record_get_state(alice_record);      
+    result = bobs_schnorr_check_of_alice(alice_state);
+    ck_assert_int_eq(result, 0);
+    if (result!=0) {
+        printf("Alice's schnoor test of Bob failed!\n");
+    } else printf("\t Alice's schnoor proof of Bob passed\n");
+
     /* Encrypt a pair of messages, intentionally skipping Alice's */
     static const char lost_message_for_bob_data[] = "hey there";
     size_t lost_message_for_bob_len = sizeof(lost_message_for_bob_data) - 1;
@@ -1259,9 +1325,6 @@ START_TEST(test_repeated_simultaneous_initiate_lost_message_repeated_messages)
         result = session_builder_process_pre_key_bundle(alice_session_builder, bob_pre_key_bundle);
         ck_assert_int_eq(result, 0);
 
-        result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
-        ck_assert_int_eq(result, 0);
-
 /*Bob does schnoor*/
     	session_state *state = 0; 
     	session_record *bob_record = 0;
@@ -1272,6 +1335,21 @@ START_TEST(test_repeated_simultaneous_initiate_lost_message_repeated_messages)
     	if (result!=0) {
         	printf("Bob's schnoor test of Alice failed!\n");
     	} else printf("\t Bob's schnoor proof of Alice passed\n");
+
+        result = session_builder_process_pre_key_bundle(bob_session_builder, alice_pre_key_bundle);
+        ck_assert_int_eq(result, 0);
+
+/*Alice does schnoor*/
+    session_state *alice_state = 0; 
+    session_record *alice_record = 0;
+    signal_protocol_session_load_session(bob_store, &alice_record, &alice_address);
+    alice_state = session_record_get_state(alice_record);      
+    result = bobs_schnorr_check_of_alice(alice_state);
+    ck_assert_int_eq(result, 0);
+    if (result!=0) {
+        printf("Alice's schnoor test of Bob failed!\n");
+    } else printf("\t Alice's schnoor proof of Bob passed\n");
+
 
         /* Encrypt a pair of messages */
         static const char message_for_bob_data[] = "hey there";
